@@ -1,0 +1,43 @@
+<?php
+
+defined('COT_CODE') or die('Wrong URL.');
+
+if (!$db_list_menu) {
+    include_once cot_incfile("menu", "plug");
+}
+
+$t = new XTemplate(cot_tplfile("test", "module"));
+
+$t->assign("TEST_TITLE", "He Тестовый модуль!");
+
+
+
+$a = $db->query("SELECT * FROM `{$db_list_menu}` WHERE menu_id=18")->fetchAll();
+
+function mapTree($array) {
+    $result = array();
+    foreach ($array as $value) {
+        $result[$value['id_parent']][] = $value;
+    }
+    return $result;
+}
+
+// вызываем функцию и передаем ей наш массив
+$data = mapTree($a);
+
+function tree($data, $parent = 0) {
+    if ($data[$parent]) {
+        print "<ul>";
+        foreach ($data[$parent] as $v) {
+            print "<li>";
+            print $v["name"];
+            if ($data[$v["id_parent"]]) {
+                tree($data, $v["id"]);
+            }
+            print "</li>";
+        }
+        print "</ul>";
+    }
+}
+
+tree($data);
